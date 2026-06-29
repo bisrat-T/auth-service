@@ -10,8 +10,8 @@ const auth=(req, res, next)=>{
   if (!token){
     return res.status(403).json({ success:false, message: 'Unauthorized'})
   }
-
- 
+   
+//  git
   try{
   
     const decoded=jwt.verify(token, process.env.TOKEN_SECRET);
