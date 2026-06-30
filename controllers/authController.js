@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const {signupSchema, signinSchema} = require("../middlewares/validator");
 const userSchema  = require("../models/usersModel");
-const { hash, compare, bcrypt ,genSalt} = require("bcryptjs")
+// const { hash, compare ,genSalt} = require("bcryptjs")
+const bcrypt = require("bcryptjs");
 const {makeHash, makeHashValidation} = require("../utilities/hash");
 
 const signup=async(req,res)=>{
@@ -104,113 +105,52 @@ catch(error){
 }
 }
 
-// const changePassword=async(req, res)=>{
-//     try{
-//         const {currentPassword, newPassword}=req.body
-//           if (!currentPassword || !newPassword) {
-//             return res.status(400).json({
-//                 message: "Current Password and new Password are required."});
-//         }
-//     const user=await userSchema.findById(req.user.userID)
-//     if(!user){
-//          return res.status(404).json({
-//                 success: false,
-//                 message: "User not found."
-//             });
-//     }
-      
 
-
-
-//     const isMatch = await bcrypt.compare(currentPassword, user.password);
-
-//         if (!isMatch) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Current password is incorrect."
-//             });
-//         }
-
-//         // Prevent using the same password
-//         const samePassword = await bcrypt.compare(newPassword, user.password);
-
-//         if (samePassword) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "New password must be different."
-//             });
-//         }
-
-
-
-
-
-   
-
-//     // const salt = await bcrypt.genSalt(10);
-//     //     user.password = await bcrypt.hash(newPassword, salt);
-
-//        const userNewP= await user.save();
-//         if(userNewP){
-//         res.status(200).json({
-//             success: true, 
-//             message: "password changed successfully."
-//         });}
-//     }
-//     catch(error){
-//              console.error(error);
-
-//     return res.status(500).json({
-//         success: false,
-//         message: "Internal server error"
-//     });
-//     }
-// }
-
-
-
-const changePassword = async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-
-        if (!currentPassword || !newPassword) {
+const changePassword=async(req, res)=>{
+    try{
+        const {currentPassword, newPassword}=req.body
+          if (!currentPassword || !newPassword) {
             return res.status(400).json({
-                success: false,
-                message: "Current password and new password are required."
-            });
+                message: "Current Password and new Password are required."});
         }
+    // const user=await userSchema.findById(req.user.userID)
 
-        const user = await userSchema.findById(req.user.userID);
+const user = await userSchema
+    .findById(req.user.userID)
+    .select("+password");
 
-        if (!user) {
-            return res.status(404).json({
+
+    if(!user){
+         return res.status(404).json({
                 success: false,
                 message: "User not found."
             });
-        }
+    }
+      console.log(user);
+console.log(user.password);
 
-        // Verify current password
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const currentPasswordChecker=await bcrypt.compare(currentPassword, user.password)
 
-        if (!isMatch) {
-            return res.status(400).json({
+if(!currentPasswordChecker){
+    return res.status(404).json({
                 success: false,
                 message: "Current password is incorrect."
             });
-        }
+}
 
-        // Prevent using the same password
-        const samePassword = await bcrypt.compare(newPassword, user.password);
+ const isSamePassword = await bcrypt.compare(
+            newPassword,
+            user.password
+        );
 
-        if (samePassword) {
+        if (isSamePassword) {
             return res.status(400).json({
                 success: false,
-                message: "New password must be different."
+                message: "New password must be different from the current password."
             });
         }
 
-        // Hash new password
-        const salt = await bcrypt.genSalt(10);
+   const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
 
         await user.save();
@@ -220,15 +160,23 @@ const changePassword = async (req, res) => {
             message: "Password changed successfully."
         });
 
-    } catch (error) {
-        console.error(error);
 
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+
+
+
+
+
     }
-};
+    catch(error){
+             console.error(error);
+
+    return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+    });
+    }
+}
+
 
 
 module.exports={signup, signin, updateProfile, changePassword}

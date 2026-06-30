@@ -9,5 +9,5 @@ const router= express.Router()
 router.post('/signup', signup)
 router.post('/signin', signin)
 router.patch('/updateProfile', auth, updateProfile)
-router.patch('/changePassword',auth,changePassword)
+router.patch('/changePassword',auth, changePassword)
 module.exports=router
