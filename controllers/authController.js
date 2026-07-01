@@ -126,8 +126,8 @@ const user = await userSchema
                 message: "User not found."
             });
     }
-      console.log(user);
-console.log(user.password);
+//       console.log(user);
+// console.log(user.password);
 
     const currentPasswordChecker=await bcrypt.compare(currentPassword, user.password)
 
@@ -159,11 +159,6 @@ if(!currentPasswordChecker){
             success: true,
             message: "Password changed successfully."
         });
-
-
-
-
-
 
 
     }
