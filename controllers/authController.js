@@ -173,5 +173,84 @@ if(!currentPasswordChecker){
 }
 
 
+const forgotPassword=async(req,res)=>{
+    try{
 
-module.exports={signup, signin, updateProfile, changePassword}
+        const {email}=req.body
+        const user=await userSchema.findOne({email})
+        if(!user){
+            res.status(400).json("user not found")
+        }
+
+        const otp=Math.floor(100000+Math.random()*900000)
+
+          user.resetPasswordOTP = otp;
+    user.resetPasswordOTPExpires = Date.now() + 10 * 60 * 1000;
+
+
+     await user.save();
+
+    console.log(`OTP for ${email}: ${otp}`);
+
+    return res.status(200).json({
+      message: "OTP generated successfully. Check the console."
+    });
+
+    }
+    catch(error){
+      console.log(error)
+    }
+}
+
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const user = await userSchema.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+console.log("Stored OTP:", user.resetPasswordOTP, typeof user.resetPasswordOTP);
+console.log("Received OTP:", otp, typeof otp);
+console.log("Expires:", user.resetPasswordOTPExpires);
+console.log("Now:", Date.now());
+
+
+
+    if (
+      user.resetPasswordOTP !== otp ||
+      user.resetPasswordOTPExpires < Date.now()
+    ) {
+      return res.status(400).json({
+        message: "Invalid or expired OTP"
+      });
+    }
+
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordOTPExpires = undefined;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "PIN reset successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
+
+module.exports={signup, signin, updateProfile, changePassword, forgotPassword, resetPassword}

@@ -35,6 +35,13 @@ password:{
 forgotPassword:{
   type:Number,
   select:false
+},
+
+resetPasswordOTP: {
+  type: Number
+},
+resetPasswordOTPExpires: {
+  type: Date
 }
 
 },{ timestamps:true})
