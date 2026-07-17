@@ -6,9 +6,9 @@ const bcrypt = require("bcryptjs");
 const {makeHash, makeHashValidation} = require("../utilities/hash");
 
 const signup=async(req,res)=>{
-    const {fullName,email, password, phone_number}=req.body;
+    const {firstName, lastName,email, password, phone_number}=req.body;
    try{
-    const {error, value}=signupSchema.validate({email,password, phone_number, fullName})
+    const {error, value}=signupSchema.validate({firstName, lastName, email,password, phone_number, })
             if(error){
                 return res.status(401).json({success:false, massage:error.details[0].message})
             }
@@ -24,7 +24,8 @@ const signup=async(req,res)=>{
 
     const hashedPassword=await makeHash(password,12)
 const newUser= new userSchema({
-    fullName,
+   firstName,
+   lastName,
     email,
     password:hashedPassword,
     phone_number
@@ -100,7 +101,7 @@ const updateProfile =async(req,res)=>{
 }
 catch(error){
      res.status(500).json({
-            message: err.message
+            message: error.message
         });
 }
 }
@@ -123,7 +124,7 @@ const user = await userSchema
     if(!user){
          return res.status(404).json({
                 success: false,
-                message: "User not found."
+                message: " invalid credentials."
             });
     }
 //       console.log(user);
@@ -179,7 +180,7 @@ const forgotPassword=async(req,res)=>{
         const {email}=req.body
         const user=await userSchema.findOne({email})
         if(!user){
-            res.status(400).json("user not found")
+            res.status(400).json("invalid credentials")
         }
 
         const otp=Math.floor(100000+Math.random()*900000)
@@ -211,7 +212,7 @@ const resetPassword = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: "invalid credentials"
       });
     }
 
@@ -219,6 +220,8 @@ console.log("Stored OTP:", user.resetPasswordOTP, typeof user.resetPasswordOTP);
 console.log("Received OTP:", otp, typeof otp);
 console.log("Expires:", user.resetPasswordOTPExpires);
 console.log("Now:", Date.now());
+const otpFound=(user.resetPasswordOTP === otp)
+console.log("otpFound: ",otpFound)
 
 
 

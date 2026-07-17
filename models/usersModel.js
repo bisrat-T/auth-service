@@ -2,7 +2,12 @@ const mongoose=require('mongoose')
 
 const userSchema=mongoose.Schema({
 
-fullName:{
+firstName:{
+  type:String,
+   required:[true, 'Fullname is required'],
+   trim: true
+},
+lastName:{
   type:String,
    required:[true, 'Fullname is required'],
    trim: true
@@ -11,7 +16,7 @@ fullName:{
 email:{
   type:String,
   required:[true, 'Email address is required'],
-    unique: [true, 'Email must be unique'],
+    unique: [true, 'Email already exist'],
     lowercase: true,
     trim: true
 },
@@ -19,7 +24,7 @@ email:{
 phone_number:{
   type:String,
   required:[true, 'Phone number is required'],
-   unique: [true, 'Phone number must be unique'],
+   unique: [true, 'Phone number already exist'],
   trim: true
 },
 
@@ -38,7 +43,7 @@ forgotPassword:{
 },
 
 resetPasswordOTP: {
-  type: Number
+  type: String
 },
 resetPasswordOTPExpires: {
   type: Date

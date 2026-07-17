@@ -2,18 +2,23 @@ const joi=require('joi')
 
 const signupSchema=joi.object({
     
-     fullName:joi.string()
+     firstName:joi.string()
     .required(),
+
+     lastName:joi.string()
+    .required(),
+
     email:joi.string()
     .required()
     .email({
         tlds:{allow:['com', 'net']}
     }),
+    
     password:joi.string()
     .required(),
 
      phone_number:joi.string()
-    .required()
+    .required().pattern(/^(?:\+251|251|0)[79]\d{8}$/)
 })
 
 
