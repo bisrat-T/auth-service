@@ -34,5 +34,13 @@ const signinSchema=joi.object({
     .required(),
 })
  
-
-module.exports={signupSchema, signinSchema}
+const otpValidatorSchema=joi.object({
+     email:joi.string()
+    .required()
+    .email({
+        tlds:{allow:['com', 'net']}
+    }),
+    otp:joi.number()
+    .required(),
+})
+module.exports={signupSchema, signinSchema, otpValidatorSchema}

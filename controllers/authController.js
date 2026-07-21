@@ -1,14 +1,16 @@
 const jwt = require("jsonwebtoken");
-const {signupSchema, signinSchema} = require("../middlewares/validator");
+const {signupSchema, signinSchema, otpValidatorSchema} = require("../middlewares/validator");
 const userSchema  = require("../models/usersModel");
 // const { hash, compare ,genSalt} = require("bcryptjs")
 const bcrypt = require("bcryptjs");
 const {makeHash, makeHashValidation} = require("../utilities/hash");
+const transport = require("../utilities/sendMailer");
+const otpSchema= require("../models/otpModel")
 
 const signup=async(req,res)=>{
     const {firstName, lastName,email, password, phone_number}=req.body;
    try{
-    const {error, value}=signupSchema.validate({firstName, lastName, email,password, phone_number, })
+    const {error, value}=signupSchema.validate({firstName, lastName, email,password, phone_number })
             if(error){
                 return res.status(401).json({success:false, massage:error.details[0].message})
             }
@@ -107,6 +109,9 @@ catch(error){
 }
 
 
+
+
+
 const changePassword=async(req, res)=>{
     try{
         const {currentPassword, newPassword}=req.body
@@ -174,6 +179,106 @@ if(!currentPasswordChecker){
 }
 
 
+const sendVerificationCode = async(req, res)=>{
+
+    const {email}=req.body
+    try {
+        const existingUser= await userSchema.findOne({email});
+        if(!existingUser){
+              return res.status(404).json({
+                success: false,
+                message: "User not found!"
+            });
+         }
+
+         const otp= Math.floor(100000 + Math.random() * 900000).toString();
+
+         let info=await transport.sendMail({
+            from:process.env.EMAIL,
+            to:existingUser.email,
+            subject:"verification code",
+            html:'<h1>'+ otp +'</h1>'
+         })
+
+         if(info.accepted[0]===existingUser.email){
+            await otpSchema.create({
+                userId:existingUser._id,
+                otp,
+                expiresAt: new Date(Date.now() + 5*60*1000)
+            })
+         }
+
+           res.status(200).json({
+            message: "OTP sent successfully"
+        });
+        
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+const verifyVerificationCode=async(req, res)=>{
+    const {email, otp}=req.body
+    try {
+
+        const {error, value}=otpValidatorSchema.validate({email, otp})
+        
+        if(error){
+              return res.status(404).json({
+                success: false,
+           
+                message: error.details[0].message
+            });
+         }
+         const otpValue=otp.toString()
+        const existingUser=await userSchema.findOne({email})
+    //  console.log(existingUser._id)
+        if(!existingUser){
+              return res.status(404).json({
+                success: false,
+                message: "User not found!"
+            });
+        }
+            const existingOtp= await otpSchema.findOne({userId:existingUser._id})
+            //  console.log(existingOtp.otp)
+        
+            if(!existingOtp){
+              return res.status(404).json({
+                success: false,
+                message: "otp is not found!"
+            });
+         }
+       if (existingOtp.expiresAt < Date.now()) {
+    return res.status(400).json({
+        success: false,
+        message: "OTP has expired!"
+    });
+}
+         console.log(otpValue===existingOtp.otp)
+          console.log(otpValue)
+          
+         if(otpValue===existingOtp.otp){
+            // await existingOtp.deleteOne();
+            await existingOtp.save()
+            return res.status(200).json({success:true, message: 'your account has been verified!'
+            })
+         }
+         else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP"
+            });
+         }
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
 const forgotPassword=async(req,res)=>{
     try{
 
@@ -202,6 +307,10 @@ const forgotPassword=async(req,res)=>{
       console.log(error)
     }
 }
+
+
+
+
 
 
 const resetPassword = async (req, res) => {
@@ -256,4 +365,4 @@ console.log("otpFound: ",otpFound)
   }
 };
 
-module.exports={signup, signin, updateProfile, changePassword, forgotPassword, resetPassword}
+module.exports={signup, signin, updateProfile, changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode}
