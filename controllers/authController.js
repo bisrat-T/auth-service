@@ -87,9 +87,9 @@ const signin=async(req,res)=>{
 
 const updateProfile =async(req,res)=>{
     try{
-        const{fullName, email, phone_number }=req.body
+        const{firstName, lastName, email, phone_number }=req.body
 
-        const updateUser=await userSchema.findByIdAndUpdate(req.user.userID,{fullName, email, phone_number}, {
+        const updateUser=await userSchema.findByIdAndUpdate(req.user.userID,{firstName, lastName, email, phone_number}, {
                 new: true,
                 runValidators: true
             }, 

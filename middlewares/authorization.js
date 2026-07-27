@@ -1,10 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const auth=(req, res, next)=>{
-  const token=req.header("Authorization")
+  const token=req.headers.authorization
 
-
-// console.log("Authorization header:", token);
+console.log("Authorization header:", token);
 
 
   if (!token){
@@ -13,15 +12,17 @@ const auth=(req, res, next)=>{
    
 //  git
   try{
-  
-    const decoded=jwt.verify(token, process.env.TOKEN_SECRET);
+  const userToken= token.split(' ')[1]
+    const decoded=jwt.verify(userToken, process.env.TOKEN_SECRET);
     // console.log(decoded)
-
-       req.user=decoded;
+      if(decoded)
+      { req.user=decoded;
        next()
+    }else{
+      throw new Error('error in the token')
     }
  
- 
+  }
  catch(error){
       res.status(401).json({success:false, massage:"invalide token"})
     }
