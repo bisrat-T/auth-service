@@ -30,7 +30,8 @@ const newUser= new userSchema({
    lastName,
     email,
     password:hashedPassword,
-    phone_number
+    phone_number, 
+    role:"user"
 })
 const result=await newUser.save()
 result.password=undefined
@@ -68,7 +69,7 @@ const signin=async(req,res)=>{
               const token= jwt.sign({
                 userID:existingUser._id,
                 email:existingUser.email,
-                verfied:existingUser.verfied
+                role: existingUser.role
               }, process.env.TOKEN_SECRET,{
                 expiresIn:'1h'
               })
@@ -109,7 +110,45 @@ catch(error){
 }
 
 
+const updateUser=async(req,res)=>{
+    try {
+        const targetUserId=req.params.id
+        const targetUser=await userSchema.findById(targetUserId)
 
+        if(!targetUser){
+            return res.status(404).json({
+                    success: false,
+                message: "User not found"
+            })
+        }
+        if(targetUser.role==="admin" && targetUser._id.toString() !== req.user.userID){
+            return res.status(403).json({
+                success: false,
+                message: "You cannot update another admin"
+            });
+        }
+        const {firstName, lastName,email,phone_number}=req.body
+        targetUser.firstName=firstName;
+        targetUser.lastName=lastName;
+        targetUser.email=email;
+        targetUser.phone_number=phone_number
+
+        await targetUser.save()
+
+        return res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            user: targetUser
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success:false,
+            message:"Internal server error"
+        })
+        
+    }
+}
 
 
 const changePassword=async(req, res)=>{
@@ -365,4 +404,4 @@ console.log("otpFound: ",otpFound)
   }
 };
 
-module.exports={signup, signin, updateProfile, changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode}
+module.exports={signup, signin, updateProfile, changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode, updateUser}

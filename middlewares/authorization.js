@@ -1,18 +1,26 @@
 const jwt = require("jsonwebtoken");
 
 const auth=(req, res, next)=>{
-  const token=req.headers.authorization
+  console.log("<<<<>>>><<<>>",req.headers)
+  // const token=req.headers.authorization
+const authHeader = req.headers.authorization;
+const token = authHeader.split(" ")[1];
 
-console.log("Authorization header:", token);
-
-
-  if (!token){
-    return res.status(403).json({ success:false, message: 'Unauthorized'})
-  }
+if (!token) {
+    return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+    });
+}
+  // if (!token){
+  //   return res.status(403).json({ success:false, message: 'Unauthorized'})
+  // }
    
 //  git
+console.log("Authorization header:", token);
+console.log(req.headers);
   try{
-  const userToken= token.split(' ')[1]
+  const userToken= token
     const decoded=jwt.verify(userToken, process.env.TOKEN_SECRET);
     // console.log(decoded)
       if(decoded)
@@ -24,7 +32,8 @@ console.log("Authorization header:", token);
  
   }
  catch(error){
-      res.status(401).json({success:false, massage:"invalide token"})
+  console.log("the errpr:",error)
+      res.status(401).json({success:false, massage:"invaliderrr token"})
     }
     }
 module.exports=auth;
