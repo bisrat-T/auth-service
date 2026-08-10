@@ -4,19 +4,21 @@ const auth=(req, res, next)=>{
   console.log("<<<<>>>><<<>>",req.headers)
   // const token=req.headers.authorization
 const authHeader = req.headers.authorization;
-const token = authHeader.split(" ")[1];
 
-if (!token) {
-    return res.status(401).json({
-        success: false,
-        message: "Unauthorized"
-    });
+
+if (!authHeader) {
+  return res.status(401).json({
+    success: false,
+    message: "Unauthorized",
+  });
 }
   // if (!token){
   //   return res.status(403).json({ success:false, message: 'Unauthorized'})
   // }
    
 //  git
+const token = authHeader.split(" ")[1];
+
 console.log("Authorization header:", token);
 console.log(req.headers);
   try{
