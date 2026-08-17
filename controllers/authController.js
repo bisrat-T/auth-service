@@ -8,9 +8,9 @@ const transport = require("../utilities/sendMailer");
 const otpSchema= require("../models/otpModel")
 
 const signup=async(req,res)=>{
-    const {firstName, lastName,email, password, phone_number}=req.body;
+    const {firstName, lastName,email, password, phone_number,role}=req.body;
    try{
-    const {error, value}=signupSchema.validate({firstName, lastName, email,password, phone_number })
+    const {error, value}=signupSchema.validate({firstName, lastName, email,password, phone_number, role })
             if(error){
                 return res.status(401).json({success:false, massage:error.details[0].message})
             }
@@ -31,7 +31,7 @@ const newUser= new userSchema({
     email,
     password:hashedPassword,
     phone_number, 
-    role:"user"
+    role
 })
 const result=await newUser.save()
 result.password=undefined
@@ -127,11 +127,12 @@ const updateUser=async(req,res)=>{
                 message: "You cannot update another admin"
             });
         }
-        const {firstName, lastName,email,phone_number}=req.body
+        const {firstName, lastName,email,phone_number, role}=req.body
         targetUser.firstName=firstName;
         targetUser.lastName=lastName;
         targetUser.email=email;
         targetUser.phone_number=phone_number
+        targetUser.role = role;
 
         await targetUser.save()
 
@@ -349,7 +350,7 @@ const forgotPassword=async(req,res)=>{
 
 
 
-
+ 
 
 
 const resetPassword = async (req, res) => {

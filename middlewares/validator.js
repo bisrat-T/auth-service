@@ -1,32 +1,29 @@
 const joi=require('joi')
 
-const signupSchema=joi.object({
-    
-     firstName:joi.string()
-    .required(),
+const signupSchema = joi.object({
+  firstName: joi.string().required(),
 
-     lastName:joi.string()
-    .required(),
+  lastName: joi.string().required(),
 
-    email:joi.string()
+  email: joi
+    .string()
     .required()
     .email({
-        tlds:{allow:['com', 'net']},
-        
+      tlds: { allow: ["com", "net"] },
     }),
-    
-    password:joi.string()
-    .required(),
 
-phone_number: joi.string()
+  password: joi.string().required(),
+
+  phone_number: joi
+    .string()
     .required()
     .pattern(/^(?:\+251|0)(?:9|7)\d{8}$/)
     .messages({
-        'string.pattern.base': 'Please provide a valid Ethiopian phone number (e.g., 0911223344 or +251712345678).'
-    })
-
-
-})
+      "string.pattern.base":
+        "Please provide a valid Ethiopian phone number (e.g., 0911223344 or +251712345678).",
+    }),
+  role: joi.string().optional(),
+});
      
 
 
