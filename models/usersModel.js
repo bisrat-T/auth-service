@@ -4,12 +4,12 @@ const userSchema=mongoose.Schema({
 
 firstName:{
   type:String,
-   required:[true, 'Fullname is required'],
+   required:[true, 'Firstname is required'],
    trim: true
 },
 lastName:{
   type:String,
-   required:[true, 'Fullname is required'],
+   required:[true, 'Lastname is required'],
    trim: true
 },
 

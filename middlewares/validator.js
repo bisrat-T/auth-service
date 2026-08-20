@@ -54,4 +54,27 @@ const otpValidatorSchema=joi.object({
     otp:joi.number()
     .required(),
 })
-module.exports={signupSchema, signinSchema, otpValidatorSchema}
+
+
+const updateUserSchema=joi.object({
+  firstName: joi.string().optional(),
+    
+    lastName: joi.string().optional(),
+
+    email: joi
+        .string()
+        .email({
+            tlds: { allow: ["com", "net"] }
+        })
+        .optional(),
+
+    phone_number: joi
+        .string()
+        .pattern(/^(?:\+251|0)(?:9|7)\d{8}$/)
+        .optional()
+        .messages({
+            "string.pattern.base":
+                "Please provide a valid Ethiopian phone number (e.g., 0911223344 or +251712345678)."
+        })
+})
+module.exports={signupSchema, signinSchema, otpValidatorSchema, updateUserSchema}
