@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const {signupSchema, signinSchema, otpValidatorSchema} = require("../middlewares/validator");
+const {signupSchema, signinSchema, otpValidatorSchema, updateUserSchema} = require("../middlewares/validator");
 const userSchema  = require("../models/usersModel");
 // const { hash, compare ,genSalt} = require("bcryptjs")
 const bcrypt = require("bcryptjs");
@@ -108,6 +108,31 @@ catch(error){
         });
 }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const updateUser=async(req,res)=>{
@@ -405,4 +430,34 @@ console.log("otpFound: ",otpFound)
   }
 };
 
-module.exports={signup, signin, updateProfile, changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode, updateUser}
+const getMe = async (req, res) => {
+    try {
+        const user = await userSchema.findById(req.user.userID);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
+
+
+
+module.exports={signup, getMe, signin, updateProfile, changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode, updateUser}

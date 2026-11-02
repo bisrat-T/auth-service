@@ -1,5 +1,5 @@
 const express=require('express')
-const {signup, signin, updateProfile,changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode, updateUser} = require('../controllers/authController')
+const {signup, signin, updateProfile,changePassword, forgotPassword, resetPassword, sendVerificationCode, verifyVerificationCode, updateUser, getMe} = require('../controllers/authController')
 const auth = require('../middlewares/authorization')
 const authorizeRole = require('../middlewares/roleMiddleware')
 const authLimiter  = require('../middlewares/rateLimiter')
@@ -17,4 +17,5 @@ router.post('/forgotPassword', authorizeRole("admin"),forgotPassword)
 router.post('/resetPassword', authLimiter, authorizeRole("admin"), resetPassword)
 router.post('/sendVerificationCode', sendVerificationCode)
 router.post('/verifyVerificationCode', verifyVerificationCode)
+router.get('/me', auth, getMe)
 module.exports=router
